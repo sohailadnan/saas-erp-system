@@ -25,7 +25,7 @@ services:
     image: postgres:14
     environment:
       POSTGRES_USER: erpadmin
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: erp_saas
     ports:
       - "5432:5432"
