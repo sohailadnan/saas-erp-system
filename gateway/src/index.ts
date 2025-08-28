@@ -44,6 +44,10 @@ app.get('/', (req, res) => {
   res.send('Hello from the gateway!');
 });
 
-app.listen(port, () => {
-  console.log(`Gateway listening at http://localhost:${port}`);
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Gateway listening at http://0.0.0.0:${port}`);
 });

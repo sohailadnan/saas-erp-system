@@ -9,7 +9,8 @@
     "agents/*",
     "gateway",
     "frontend",
-    "shared-libs"
+    "shared-libs",
+    "test/integration"
   ],
   "scripts": {
     "dev": "lerna run dev --stream --parallel",
