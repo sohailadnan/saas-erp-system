@@ -45,15 +45,14 @@ This system is built using a microservices architecture with autonomous agents, 
 
 ### Installation
 
-1. Clone the repository
-2. Install dependencies in each service:
+1. Clone the repository.
+2. Install dependencies for all packages using Lerna and npm workspaces:
    ```bash
-   cd services/user-management && npm install
-   cd ../inventory && npm install
-   # Repeat for other services
+   npm install
    ```
-3. Set up environment variables
-4. Start the development environment:
+   This command will hoist shared dependencies to the root `node_modules` and link local packages.
+3. Set up environment variables. Refer to the `config.ts` files within each service's `src` directory for required variables.
+4. Start the development environment (databases, message queues, etc.):
    ```bash
    docker-compose up -d
    ```
@@ -62,32 +61,44 @@ This system is built using a microservices architecture with autonomous agents, 
 
 ### Running Services
 
-Each service can be run independently:
+## Development
+
+### Running All Services and Agents
+
+To start all services and agents in parallel (as defined in the root `package.json`):
 
 ```bash
-cd services/<service-name>
 npm run dev
 ```
 
-### Running Agents
+### Running Individual Services or Agents
 
-Agents can be started individually:
+To run a specific service or agent independently:
 
 ```bash
-cd agents/<agent-name>
-npm run start
+npm run dev --workspace=<package-name>
+# Example: npm run dev --workspace=@saas-erp/user-management
+# Example: npm run dev --workspace=@saas-erp/orchestration
+```
+
+Alternatively, you can use Lerna directly:
+
+```bash
+lerna run dev --scope=<package-name>
+# Example: lerna run dev --scope=user-management
+# Example: lerna run dev --scope=orchestration
 ```
 
 ### Running Tests
 
 ```bash
-# Run unit tests
+# Run unit tests for all packages
 npm run test
 
-# Run integration tests
+# Run integration tests for all packages
 npm run test:integration
 
-# Run E2E tests
+# Run E2E tests for all packages
 npm run test:e2e
 ```
 

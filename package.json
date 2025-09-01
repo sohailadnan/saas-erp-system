@@ -9,12 +9,13 @@
     "agents/*",
     "gateway",
     "frontend",
-    "shared-libs"
+    "shared-libs",
+    "test/integration"
   ],
   "scripts": {
     "dev": "lerna run dev --stream --parallel",
     "build": "lerna run build",
-    "test": "lerna run test",
+    "test": "vitest",
     "test:integration": "lerna run test:integration",
     "test:e2e": "lerna run test:e2e",
     "lint": "lerna run lint",
@@ -39,9 +40,11 @@
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^8.0.0",
     "husky": "^8.0.0",
-    "lerna": "^6.0.0",
+    "lerna": "^6.6.2",
     "lint-staged": "^13.0.0",
+    "playwright": "^1.55.0",
     "prettier": "^2.0.0",
-    "typescript": "^4.9.0"
+    "typescript": "^4.9.0",
+    "vitest": "^0.25.3"
   }
 }

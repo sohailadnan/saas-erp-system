@@ -11,7 +11,13 @@ services:
     environment:
       - NODE_ENV=development
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://gateway:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # RabbitMQ Message Broker
   rabbitmq:
@@ -19,6 +25,11 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
   # PostgreSQL Database
   postgres:
@@ -26,17 +37,27 @@ services:
     environment:
       POSTGRES_USER: erpadmin
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: erp_saas
+      POSTGRES_DB: erp_saas_test
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_test:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erpadmin -d erp_saas_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Redis Cache
   redis:
     image: redis:6
     ports:
-      - "6379:6379"
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # User Management Service
   user-service:
@@ -48,8 +69,10 @@ services:
       - DB_HOST=postgres
       - RABBITMQ_HOST=rabbitmq
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   # Inventory Service
   inventory-service:
@@ -61,8 +84,10 @@ services:
       - DB_HOST=postgres
       - RABBITMQ_HOST=rabbitmq
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   # Finance Service
   finance-service:
@@ -74,8 +99,10 @@ services:
       - DB_HOST=postgres
       - RABBITMQ_HOST=rabbitmq
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   # HR Service
   hr-service:
@@ -87,8 +114,10 @@ services:
       - DB_HOST=postgres
       - RABBITMQ_HOST=rabbitmq
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   # Orchestration Agent
   orchestration-agent:
@@ -99,7 +128,8 @@ services:
       - NODE_ENV=development
       - RABBITMQ_HOST=rabbitmq
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
 
   # Integration Agent
   integration-agent:
@@ -110,7 +140,21 @@ services:
       - NODE_ENV=development
       - RABBITMQ_HOST=rabbitmq
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+
+  # Integration Tests
+  integration-tests:
+    build:
+      context: ./test/integration
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=test
+      - GATEWAY_HOST=gateway
+    depends_on:
+      gateway:
+        condition: service_healthy
+    command: ["/usr/local/bin/wait-for-it.sh", "gateway:3000", "--", "npm", "run", "test:integration"]
 
 volumes:
-  postgres_data:
+  postgres_data_test:
